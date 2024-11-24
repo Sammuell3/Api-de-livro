@@ -18,12 +18,14 @@ public class BooksService {
         this.booksRepository = booksRepository;
     }
 
+
+
     public List<Book> getAllBooks(){
         return booksRepository.findAll();
     }
 
-    public Book getNameBook( String name){
-        return booksRepository.findByName(name);
+    public Book getTitleBook( String title){
+        return booksRepository.findByTitle(title);
     }
 
     public Book getBookById(UUID id){
@@ -58,8 +60,13 @@ public class BooksService {
         return booksRepository.findAll(PageRequest.of(page, size));
     }
 
-    public void deleteById(UUID id) {
-        booksRepository.deleteById(id);
+    public boolean deleteById(UUID id) {
+        if (booksRepository.existsById((id))){
+            booksRepository.deleteById(id);
+            return true;
+        }else {
+            return false;
+        }
     }
 
 }

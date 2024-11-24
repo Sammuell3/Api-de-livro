@@ -1,0 +1,16 @@
+CREATE TABLE book (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    title VARCHAR(255) NOT NULL,
+    image_url VARCHAR(500),
+    author VARCHAR(100),
+    description VARCHAR(1000),
+    publisher VARCHAR(100),
+    edition VARCHAR(50),
+    genre VARCHAR(50), CHECK (genre IN ('FILOSOFIA', 'ECONOMIA', 'POLITICA', 'HISTORIA', 'CIENCIA_SOCIAL', 'FICCAO', 'BIOGRAFIA', 'EDUCACAO', 'PSICOLOGIA', 'SOCIOLOGIA', 'ANTROPOLOGIA', 'OUTROS')),
+    language VARCHAR(50),
+    status VARCHAR(50), CHECK (status IN ('DISPONIVEL', 'SEM_ESTOQUE', 'PRE_VENDA')),
+    publish_year VARCHAR(4),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    isbn VARCHAR(20) UNIQUE
+);
