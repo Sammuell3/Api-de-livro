@@ -2,6 +2,7 @@ package com.example.konkin.model;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -13,6 +14,7 @@ import java.util.UUID;
 @Table(name = "book")
 public class Book {
 
+    @Getter
     public enum BookStatus {
         DISPONIVEL("Disponível"),
         SEM_ESTOQUE("Sem Estoque"),
@@ -23,11 +25,9 @@ public class Book {
             this.statusDescription = statusDescription;
         }
 
-        public String getStatusDescription() {
-            return statusDescription;
-        }
     }
 
+    @Getter
     public enum BookGenre {
         FILOSOFIA("Filosofia"),
         ECONOMIA("Economia"),
@@ -47,9 +47,6 @@ public class Book {
             this.genreDescription = genreDescription;
         }
 
-        public String getGenreDescription() {
-            return genreDescription;
-        }
     }
 
     @Id
