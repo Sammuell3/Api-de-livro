@@ -9,10 +9,12 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.sql.Timestamp;
 import java.util.UUID;
 
+
 @Entity
 @Data
 @Table(name = "book")
 public class Book {
+
 
     @Getter
     public enum BookStatus {
@@ -96,4 +98,97 @@ public class Book {
 
     @Column(name="ISBN", unique = true, length = 20)
     private String isbn;
+
+    // Construtor padrão
+    public Book() {
+    }
+
+    public static BookBuilder builder() {
+        return new BookBuilder();
+    }
+
+    public static class BookBuilder {
+        private String title;
+        private String imageUrl;
+        private String author;
+        private String description;
+        private String publisher;
+        private String edition;
+        private BookGenre genre;
+        private String language;
+        private BookStatus status;
+        private String publishYear;
+        private String isbn;
+
+        public BookBuilder title(String title) {
+            this.title = title;
+            return this;
+        }
+
+        public BookBuilder imageUrl(String imageUrl) {
+            this.imageUrl = imageUrl;
+            return this;
+        }
+
+        public BookBuilder author(String author) {
+            this.author = author;
+            return this;
+        }
+
+        public BookBuilder description(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public BookBuilder publisher(String publisher) {
+            this.publisher = publisher;
+            return this;
+        }
+
+        public BookBuilder edition(String edition) {
+            this.edition = edition;
+            return this;
+        }
+
+        public BookBuilder genre(BookGenre genre) {
+            this.genre = genre;
+            return this;
+        }
+
+        public BookBuilder language(String language) {
+           this.language = language;
+            return this;
+        }
+
+        public BookBuilder status(BookStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public BookBuilder publishYear(String publishYear) {
+            this.publishYear = publishYear;
+            return this;
+        }
+
+        public BookBuilder isbn(String isbn) {
+            this.isbn = isbn;
+            return this;
+        }
+
+        public Book build() {
+            Book book = new Book();
+            book.title = this.title;
+            book.imageUrl = this.imageUrl;
+            book.author = this.author;
+            book.description = this.description;
+            book.publisher = this.publisher;
+            book.edition = this.edition;
+            book.genre = this.genre;
+            book.language = this.language;
+            book.status = this.status;
+            book.publishYear = this.publishYear;
+            book.isbn = this.isbn;
+            return book;
+        }
+    }
 }

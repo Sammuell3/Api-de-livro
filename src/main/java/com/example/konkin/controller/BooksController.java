@@ -1,52 +1,51 @@
 package com.example.konkin.controller;
 
 import com.example.konkin.model.Book;
-import com.example.konkin.request.BookRequest;
+import com.example.konkin.DTO.BookRequestDTO;
 import com.example.konkin.service.BooksService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/books")
+@RequiredArgsConstructor
 public class BooksController {
 
     private final BooksService booksService;
 
-    public BooksController(BooksService booksService) {
-        this.booksService = booksService;
-    }
     @PostMapping
-    public ResponseEntity<Book> createBook(@RequestBody BookRequest bookRequest) {
-        Book book = new Book();
-        book.setTitle(bookRequest.getTitle());
-        book.setImageUrl(bookRequest.getImageUrl());
-        book.setAuthor(bookRequest.getAuthor());
-        book.setDescription(bookRequest.getDescription());
-        book.setPublisher(bookRequest.getPublisher());
-        book.setEdition(bookRequest.getEdition());
-        book.setGenre(Book.BookGenre.valueOf(bookRequest.getGenre().toUpperCase()));  // Convertendo string para enum
-        book.setLanguage(bookRequest.getLanguage());
-        book.setStatus(Book.BookStatus.valueOf(bookRequest.getStatus().toUpperCase()));  // Convertendo string para enum
-        book.setPublishYear(bookRequest.getPublishYear());
-        book.setIsbn(bookRequest.getIsbn());
+    public ResponseEntity<Book> createBook(@RequestBody BookRequestDTO bookRequestDTO) {
+
+        var book = Book.builder()
+                .title(bookRequestDTO.getTitle())
+                .imageUrl(bookRequestDTO.getImageUrl())
+                .author(bookRequestDTO.getAuthor())
+                .description(bookRequestDTO.getDescription())
+                .publisher(bookRequestDTO.getPublisher())
+                .edition(bookRequestDTO.getEdition())
+                .genre(bookRequestDTO.getGenre() != null ? Book.BookGenre.valueOf(bookRequestDTO.getGenre().toUpperCase()) : null)
+                .language(bookRequestDTO.getLanguage() != null ? bookRequestDTO.getLanguage() : "")
+                .status(bookRequestDTO.getStatus() != null ? Book.BookStatus.valueOf(bookRequestDTO.getStatus().toUpperCase()) : Book.BookStatus.DISPONIVEL)
+                .publishYear(bookRequestDTO.getPublishYear())
+                .isbn(bookRequestDTO.getIsbn())
+                .build();
 
         // Salvar o livro no banco de dados
-        Book savedBook = booksService.save(book);
+        var savedBook = booksService.save((Book) book);
 
-        return new ResponseEntity<>(savedBook, HttpStatus.CREATED);
+        //return new ResponseEntity<>(savedBook, HttpStatus.CREATED);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedBook);
     }
 
 
     @GetMapping
     public ResponseEntity<List<Book>> getBooks() {
-        List<Book> books = booksService.getAllBooks();
+        var books = booksService.getAllBooks();
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
@@ -58,64 +57,43 @@ public class BooksController {
             @RequestParam(required = false) String status,
             @RequestParam(required = false) String publishYear
     ) {
-        Book.BookStatus bookStatus = null;
-        if (status != null) {
-            try {
-                bookStatus = Book.BookStatus.valueOf(status); // Converte a String para o enum
-            } catch (IllegalArgumentException e) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Retorna erro se o status não for válido
-            }
-        }
+        try {
+            // Log dos parâmetros recebidos
+            System.out.println("Parâmetros recebidos: title=" + title + ", author=" + author + ", genre=" + genre + ", status=" + status + ", publishYear=" + publishYear);
 
-        Book.BookGenre bookGenre = null; // Mover a declaração para fora do bloco
-        if (genre != null) {
-            try {
-                bookGenre = Book.BookGenre.valueOf(genre); // Converte a String para o enum
-            } catch (IllegalArgumentException e) {
-                return new ResponseEntity<>(HttpStatus.BAD_REQUEST); // Retorna erro se o gênero não for válido
-            }
-        }
+            // Converte os parâmetros de String para os tipos de enum
+            Book.BookGenre bookGenre = genre != null ? Book.BookGenre.valueOf(genre.toUpperCase()) : null;
+            Book.BookStatus bookStatus = status != null ? Book.BookStatus.valueOf(status.toUpperCase()) : null;
 
-        List<Book> filter = booksService.Search(title, author, bookGenre, bookStatus, publishYear);
-        if (filter.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+            // Chama o serviço de busca com os parâmetros fornecidos
+            List<Book> books = booksService.searchDinamicRoutes(title, author, bookGenre, bookStatus, publishYear);
+
+            // Retorna uma resposta com status HTTP 200 (OK) e a lista de livros encontrados
+            return ResponseEntity.ok(books);
+
+        } catch (IllegalArgumentException e) {
+            // Captura erros de conversão de enums ou outros parâmetros inválidos
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid parameter: " + e.getMessage(), e);
+        } catch (Exception e) {
+            // Log do erro para diagnóstico
+            System.err.println("Erro ao buscar livros: " + e.getMessage());
+            // Captura quaisquer outros erros
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "An error occurred while fetching books.", e);
         }
-        return new ResponseEntity<>(filter, HttpStatus.OK);
     }
 
-/*
-    @GetMapping("/title/{title}")
-    public ResponseEntity<Book> getTitleBook(@PathVariable String title) {
-        Book book = booksService.getTitleBook(title);
-        if (book != null) {
-            return new ResponseEntity<>(book, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-    }
-*/
     @GetMapping("/{id}")
     public ResponseEntity<Book> getBookById(@PathVariable UUID id) {
-        Book book = booksService.getBookById(id);
+        var book = booksService.getBookById(id);
         if (book != null) {
             return new ResponseEntity<>(book, HttpStatus.OK);
         } else {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
     }
-/*
-    @GetMapping("/status/{status}")
-    public ResponseEntity<List<Book>> getBooksByStatus(@PathVariable Book.BookStatus status) {
-        List<Book> books = booksService.getBooksByStatus(status);
-        if (!books.isEmpty()) {
-            return new ResponseEntity<>(books, HttpStatus.OK);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-    }
-*/
+
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteBookByid(@PathVariable UUID id){
+    public ResponseEntity<Void> deleteBook(@PathVariable UUID id){
         boolean isDeleted = booksService.deleteById(id);
         if (isDeleted){
             return ResponseEntity.noContent().build();

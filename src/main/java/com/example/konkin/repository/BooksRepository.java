@@ -3,7 +3,7 @@ package com.example.konkin.repository;
 import com.example.konkin.model.Book;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+
 import org.springframework.stereotype.Repository;
 
 import java.util.UUID;
@@ -17,11 +17,11 @@ public interface BooksRepository extends JpaRepository<Book, UUID> {
             "(:status IS NULL OR b.status = :status) AND " +
             "(:publishYear IS NULL OR b.publishYear LIKE %:publishYear%)")
     List<Book> searchDinamicRoutes(
-            @Param("title") String title,
-            @Param("author") String author,
-            @Param("genre") Book.BookGenre genre,
-            @Param("status") Book.BookStatus status,
-            @Param("publishYear") String publishYear);
+            String title,
+            String author,
+            Book.BookGenre genre,
+            Book.BookStatus status,
+            String publishYear);
 
 
     //Book findByTitle(String title);

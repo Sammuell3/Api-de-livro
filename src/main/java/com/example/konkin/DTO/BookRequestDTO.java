@@ -1,12 +1,14 @@
-package com.example.konkin.request;
+package com.example.konkin.DTO;
 
 import lombok.Data;
 
+
 @Data
-public class BookRequest {
+public class BookRequestDTO {
 
+   
     private String title;
-
+  
     private String imageUrl;
 
     private String author;
@@ -22,7 +24,7 @@ public class BookRequest {
     private String language;
 
     private String status;  // Pode ser o valor da string do Enum
-
+  
     private String publishYear;
 
     private String isbn;
