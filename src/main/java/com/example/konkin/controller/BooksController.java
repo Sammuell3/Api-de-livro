@@ -43,13 +43,15 @@ public class BooksController {
     }
 
 
-    @GetMapping
+    /*@GetMapping
     public ResponseEntity<List<Book>> getBooks() {
         var books = booksService.getAllBooks();
         return new ResponseEntity<>(books, HttpStatus.OK);
     }
 
-    @GetMapping("/filters")
+     */
+
+    @GetMapping
     public ResponseEntity<List<Book>> getBooksByVariable(
             @RequestParam(required = false) String title,
             @RequestParam(required = false) String author,

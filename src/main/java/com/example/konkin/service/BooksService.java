@@ -18,9 +18,11 @@ public class BooksService {
 
     private final BooksRepository booksRepository;
 
-    public List<Book> getAllBooks(){
+  /*  public List<Book> getAllBooks(){
         return booksRepository.findAll();
     }
+
+   */
 
     public Book getBookById(UUID id){
         return booksRepository.findById(id).orElse(null);
